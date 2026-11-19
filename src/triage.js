@@ -6,7 +6,7 @@ const typeRules = [
 ];
 
 const highPriorityPattern =
-  /\b(?:critical|security|data loss|production outage|crash(?:es|ed)?)\b/i;
+  /\b(?:critical|security|production outage|crash(?:es|ed)?)\b/i;
 
 export function triageIssue({ title, body = "" } = {}) {
   if (typeof title !== "string" || title.trim() === "") {
