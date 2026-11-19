@@ -1,0 +1,13 @@
+name: Node.js checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    uses: ./.github/workflows/reusable-node-checks.yml

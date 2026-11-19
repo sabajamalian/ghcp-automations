@@ -1,0 +1,24 @@
+name: Bug report
+description: Report a reproducible problem in the demo
+title: "bug: "
+body:
+  - type: markdown
+    attributes:
+      value: Describe what happened and how to reproduce it.
+  - type: input
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: "1. Run ..."
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
