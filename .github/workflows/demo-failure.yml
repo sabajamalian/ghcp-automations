@@ -1,0 +1,28 @@
+name: Intentional failure demo
+
+on:
+  workflow_dispatch:
+    inputs:
+      simulate_failure:
+        description: Fail this run to trigger the AI failure investigator
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm test
+      - name: Simulate a CI failure
+        if: inputs.simulate_failure
+        run: |
+          echo "Intentional demo failure: this step was requested to fail." >&2
+          exit 1

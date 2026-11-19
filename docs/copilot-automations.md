@@ -1,6 +1,6 @@
 # Copilot Automation examples
 
-These are configuration examples for GitHub Copilot repository automations. They are not GitHub Actions workflows and are not enabled by committing this file. Create or edit automations in the repository's Copilot Automations settings, using the available triggers and tools for that repository.
+Copilot Automations are configured in GitHub repository settings, not by committing this file. The **AI CI failure investigator** is configured live for this repository; the other examples below are starting points and are not enabled.
 
 The request-shaped snippets below show the relevant fields. Replace or add any repository-specific fields required by the setup flow. Tool IDs and trigger names are shown as configured by Copilot Automations.
 
@@ -85,26 +85,30 @@ Use an interval trigger for a scheduled, read-only summary. Schedule times use U
 
 ## 4. Explain a failed check
 
-The Actions workflow in `.github/workflows/test.yml` calls `.github/workflows/reusable-node-checks.yml`, which owns the test job. The `workflow_run` trigger connects the caller workflow to a read-only failure investigation.
+The manually triggered workflow in `.github/workflows/demo-failure.yml` runs tests and then fails only when `simulate_failure` is `true`. This keeps normal CI green while providing a safe way to trigger a real investigation. Run it from Actions with `simulate_failure` enabled.
 
 ```json
 {
-  "name": "Explain failed Node.js checks",
+  "name": "AI CI failure investigator",
   "triggers": {
     "workflow_run": {
       "types": ["completed"],
-      "workflows": ["Node.js checks"],
+      "workflows": ["Intentional failure demo"],
       "conclusions": ["failure"]
     }
   },
   "tools": [
     "github/actions_list",
     "github/actions_get",
-    "github/get_job_logs"
+    "github/get_job_logs",
+    "github/search_code",
+    "github/get_file_contents"
   ],
-  "prompt": "Inspect the failed Node.js checks run and its job logs. Summarize the likely cause and suggest the smallest fix. Do not modify the repository or post comments."
+  "prompt": "Inspect the failed run and job logs. Read relevant source and tests before explaining the likely cause and smallest fix. If the Simulate a CI failure step failed, identify it as the intentional demo failure and do not suggest changing application code. Do not modify the repository or post comments."
 }
 ```
+
+The configured automation uses the same trigger and read-only tools. Its run result contains the AI explanation; it cannot change code or add comments.
 
 ## Before enabling an example
 
