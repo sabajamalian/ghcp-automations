@@ -1,6 +1,6 @@
 # Copilot Automation examples
 
-Copilot Automations are configured in GitHub repository settings, not by committing this file. The **AI CI failure investigator** is configured live for this repository; the other examples below are starting points and are not enabled.
+Copilot Automations are configured in GitHub repository settings, not by committing this file. The **AI CI failure investigator** is configured live for this repository and comments on PRs with failing CI; the other examples below are starting points and are not enabled.
 
 The request-shaped snippets below show the relevant fields. Replace or add any repository-specific fields required by the setup flow. Tool IDs and trigger names are shown as configured by Copilot Automations.
 
@@ -85,7 +85,9 @@ Use an interval trigger for a scheduled, read-only summary. Schedule times use U
 
 ## 4. Explain a failed check
 
-The manually triggered workflow in `.github/workflows/demo-failure.yml` runs tests and then fails only when `simulate_failure` is `true`. This keeps normal CI green while providing a safe way to trigger a real investigation. Run it from Actions with `simulate_failure` enabled.
+When **Node.js checks** fails on a pull request, the investigator reads the job logs, source, and tests, then comments on that PR with the root cause and smallest fix. See PR #1 for a live example: it removes `data loss` from the high-priority keywords, a test fails, and Copilot explains why.
+
+`workflow_run` triggers only have a place to post when the run belongs to a pull request, so demo it from a PR. The manual **Intentional failure demo** workflow also matches the trigger, but a run on `main` has no PR to comment on.
 
 ```json
 {
@@ -93,8 +95,9 @@ The manually triggered workflow in `.github/workflows/demo-failure.yml` runs tes
   "triggers": {
     "workflow_run": {
       "types": ["completed"],
-      "workflows": ["Intentional failure demo"],
-      "conclusions": ["failure"]
+      "workflows": ["Node.js checks", "Intentional failure demo"],
+      "conclusions": ["failure"],
+      "write_scope": "trigger"
     }
   },
   "tools": [
@@ -102,13 +105,15 @@ The manually triggered workflow in `.github/workflows/demo-failure.yml` runs tes
     "github/actions_get",
     "github/get_job_logs",
     "github/search_code",
-    "github/get_file_contents"
+    "github/get_file_contents",
+    "github/pull_request_read",
+    "github/add_issue_comment"
   ],
-  "prompt": "Inspect the failed run and job logs. Read relevant source and tests before explaining the likely cause and smallest fix. If the Simulate a CI failure step failed, identify it as the intentional demo failure and do not suggest changing application code. Do not modify the repository or post comments."
+  "prompt": "A CI workflow failed on a pull request. Read the failed run and its job logs, then read the relevant source and test files. Post one concise comment on the triggering pull request with the failing step and test, the likely root cause with file and line, and the smallest fix. Do not push code, approve, or merge."
 }
 ```
 
-The configured automation uses the same trigger and read-only tools. Its run result contains the AI explanation; it cannot change code or add comments.
+`write_scope: trigger` limits the comment to the PR that triggered the run.
 
 ## Before enabling an example
 
